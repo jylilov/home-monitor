@@ -1,10 +1,14 @@
 package by.jylilov.homemonitor.repository
 
+import java.time.{Instant, LocalDateTime, ZoneId}
+
 import by.jylilov.homemonitor.domain.SensorData
 import cats.effect.{Async, ContextShift}
 import cats.implicits._
 import doobie.Transactor
 import doobie.implicits._
+import doobie.implicits.javatime._
+
 
 class DbSensorDataRepository[F[_] : ContextShift : Async] extends SensorDataRepository[F] {
 
@@ -16,9 +20,15 @@ class DbSensorDataRepository[F[_] : ContextShift : Async] extends SensorDataRepo
   )
 
   override def save(data: SensorData): F[SensorData] = {
-    sql"""
-      insert into sensor_data(time, temperature, humidity)
-      values (to_timestamp(${data.ts} / 1000), ${data.temperature}, ${data.humidity})
-    """.update.run.transact(transactor).map(_ => data)
+
+    val ts = LocalDateTime.ofInstant(Instant.ofEpochMilli(data.ts), ZoneId.of("UTC"))
+
+    val sql =
+      sql"""
+        insert into sensor_data(time, temperature, humidity)
+        values ($ts, ${data.temperature}, ${data.humidity})
+      """
+
+    sql.update.run.transact(transactor).map(_ => data)
   }
 }
