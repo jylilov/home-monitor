@@ -2,6 +2,7 @@ package by.jylilov.homemonitor.repository
 
 import java.time.{Instant, LocalDateTime, ZoneId}
 
+import by.jylilov.homemonitor.config.DbConfig
 import by.jylilov.homemonitor.domain.SensorData
 import cats.effect.{Async, ContextShift}
 import cats.implicits._
@@ -10,13 +11,13 @@ import doobie.implicits._
 import doobie.implicits.javatime._
 
 
-class DbSensorDataRepository[F[_] : ContextShift : Async] extends SensorDataRepository[F] {
+class DbSensorDataRepository[F[_] : ContextShift : Async](dbConfig: DbConfig) extends SensorDataRepository[F] {
 
   private[this] val transactor = Transactor.fromDriverManager[F](
-    "org.postgresql.Driver",
-    "jdbc:postgresql://localhost:5432/home_monitor",
-    "postgres",
-    "password"
+    dbConfig.driver,
+    dbConfig.jdbcUrl,
+    dbConfig.username,
+    dbConfig.password
   )
 
   override def save(data: SensorData): F[SensorData] = {
