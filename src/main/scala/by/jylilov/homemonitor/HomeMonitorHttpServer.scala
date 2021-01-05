@@ -1,7 +1,7 @@
 package by.jylilov.homemonitor
 
 import by.jylilov.homemonitor.config.{DbConfig, HomeMonitorApplicationConfig, HttpServerConfig}
-import by.jylilov.homemonitor.endpoint.SensorDataEndpoints
+import by.jylilov.homemonitor.endpoint.{SensorDataEndpoints, StatusEndpoints}
 import by.jylilov.homemonitor.repository.DbSensorDataRepository
 import by.jylilov.homemonitor.service.DefaultSensorService
 import cats.effect.{Async, Clock, ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Sync, Timer}
@@ -42,7 +42,8 @@ object HomeMonitorHttpServer extends IOApp {
             loadConfig().db
           )
         )
-      )
+      ),
+      "/status" -> StatusEndpoints.endpoints[F]()
     ).orNotFound
   }
 
