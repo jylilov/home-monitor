@@ -32,5 +32,6 @@ libraryDependencies ++= Seq(
   "org.tpolecat" %% "doobie-postgres",
 ).map(_ % DoobieVersion)
 
-
 libraryDependencies += "com.typesafe" % "config" % "1.4.1"
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.2" % Test

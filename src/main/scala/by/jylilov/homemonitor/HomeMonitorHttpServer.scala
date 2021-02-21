@@ -47,7 +47,7 @@ object HomeMonitorHttpServer extends IOApp {
     ).orNotFound
   }
 
-  private def stream[F[_] : ConcurrentEffect : ContextShift : Timer]: fs2.Stream[F, ExitCode] = {
+  def stream[F[_] : ConcurrentEffect : ContextShift : Timer]: fs2.Stream[F, ExitCode] = {
     val config = loadConfig()
     for {
       exitCode <- BlazeServerBuilder[F](global)
