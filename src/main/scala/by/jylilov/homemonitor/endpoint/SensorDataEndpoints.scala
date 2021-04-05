@@ -2,16 +2,20 @@ package by.jylilov.homemonitor.endpoint
 
 import by.jylilov.homemonitor.domain.SensorDataPost
 import by.jylilov.homemonitor.service.SensorService
-import cats.effect.Sync
+import cats.effect.Async
 import cats.implicits._
 import io.circe.generic.auto._
-import org.http4s.HttpRoutes
-import org.http4s.circe.CirceEntityCodec.{circeEntityDecoder, circeEntityEncoder}
+import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
+import org.http4s.circe.jsonOf
 import org.http4s.dsl.Http4sDsl
+import org.http4s.{EntityDecoder, HttpRoutes}
 
-class SensorDataEndpoints[F[_] : Sync](
+class SensorDataEndpoints[F[_] : Async](
   sensorService: SensorService[F]
 ) extends Http4sDsl[F] {
+
+  private implicit val decoder: EntityDecoder[F, SensorDataPost] =
+    jsonOf[F, SensorDataPost]
 
   def endpoints(): HttpRoutes[F] =
     HttpRoutes.of[F] {
@@ -25,6 +29,6 @@ class SensorDataEndpoints[F[_] : Sync](
 }
 
 object SensorDataEndpoints {
-  def endpoints[F[_] : Sync](dataCollectorService: SensorService[F]): HttpRoutes[F] =
+  def endpoints[F[_] : Async](dataCollectorService: SensorService[F]): HttpRoutes[F] =
     new SensorDataEndpoints[F](dataCollectorService).endpoints()
 }

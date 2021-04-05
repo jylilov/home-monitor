@@ -1,35 +1,30 @@
 package by.jylilov.homemonitor.repository
 
+import by.jylilov.homemonitor.domain.SensorData
+import cats.effect.Async
+import scalikejdbc._
+
 import java.time.{Instant, LocalDateTime, ZoneId}
 
-import by.jylilov.homemonitor.config.DbConfig
-import by.jylilov.homemonitor.domain.SensorData
-import cats.effect.{Async, ContextShift}
-import cats.implicits._
-import doobie.Transactor
-import doobie.implicits._
-import doobie.implicits.javatime._
 
-
-class DbSensorDataRepository[F[_] : ContextShift : Async](dbConfig: DbConfig) extends SensorDataRepository[F] {
-
-  private[this] val transactor = Transactor.fromDriverManager[F](
-    dbConfig.driver,
-    dbConfig.jdbcUrl,
-    dbConfig.username,
-    dbConfig.password
-  )
+class DbSensorDataRepository[F[_] : Async](connectionPoolName: String) extends SensorDataRepository[F] {
 
   override def save(data: SensorData): F[SensorData] = {
 
-    val ts = LocalDateTime.ofInstant(Instant.ofEpochMilli(data.ts), ZoneId.of("UTC"))
+    Async[F].blocking {
 
-    val sql =
-      sql"""
-        insert into sensor_data(time, temperature, humidity)
-        values ($ts, ${data.temperature}, ${data.humidity})
-      """
+      val ts = LocalDateTime.ofInstant(Instant.ofEpochMilli(data.ts), ZoneId.of("UTC"))
 
-    sql.update.run.transact(transactor).map(_ => data)
+      using(NamedDB(connectionPoolName)) { db =>
+        db autoCommit { implicit session =>
+          sql"""
+            insert into sensor_data(time, temperature, humidity)
+            values ($ts, ${data.temperature}, ${data.humidity})
+          """.update().apply()
+        }
+      }
+
+      data
+    }
   }
 }

@@ -2,36 +2,41 @@ name := "home-monitor"
 
 version := "0.1"
 
-scalaVersion := "2.13.3"
+scalaVersion := "2.13.5"
 
-val Http4sVersion = "1.0.0-M4"
-val CirceVersion = "0.12.3"
-val Slf4jVersion = "1.7.30"
-val DoobieVersion = "0.9.0"
+// Cats
+libraryDependencies += "org.typelevel" %% "cats-core" % "2.5.0"
+libraryDependencies += "org.typelevel" %% "cats-effect" % "3.0.1"
 
+// HTTP
 libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-blaze-server",
   "org.http4s" %% "http4s-blaze-client",
   "org.http4s" %% "http4s-circe",
   "org.http4s" %% "http4s-dsl"
-).map(_ % Http4sVersion)
+).map(_ % "1.0.0-M20")
 
+// JSON
 libraryDependencies ++= Seq(
   "io.circe" %% "circe-core",
   "io.circe" %% "circe-generic",
   "io.circe" %% "circe-parser"
-).map(_ % CirceVersion)
+).map(_ % "0.13.0")
 
+// JDBC connection
+libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "3.5.0"
+libraryDependencies += "org.postgresql" % "postgresql" % "42.2.19"
+
+// Logging
 libraryDependencies ++= Seq(
-  "org.slf4j" % "slf4j-api",
-  "org.slf4j" % "slf4j-simple"
-).map(_ % Slf4jVersion)
+  "org.typelevel" %% "log4cats-core",
+  "org.typelevel" %% "log4cats-slf4j",
+).map(_ % "2.0.1")
+libraryDependencies += "org.slf4j" % "slf4j-simple" % "1.7.30"
 
-libraryDependencies ++= Seq(
-  "org.tpolecat" %% "doobie-core",
-  "org.tpolecat" %% "doobie-postgres",
-).map(_ % DoobieVersion)
-
+// Configuration
 libraryDependencies += "com.typesafe" % "config" % "1.4.1"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.2" % Test
+// Test
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.5" % Test
+libraryDependencies += "org.typelevel" %% "cats-effect-testing-scalatest" % "1.0.0" % Test

@@ -4,14 +4,14 @@ import by.jylilov.homemonitor.config.{DbConfig, HomeMonitorApplicationConfig, Ht
 import by.jylilov.homemonitor.endpoint.{SensorDataEndpoints, StatusEndpoints}
 import by.jylilov.homemonitor.repository.DbSensorDataRepository
 import by.jylilov.homemonitor.service.DefaultSensorService
-import cats.effect.{Async, Clock, ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Sync, Timer}
+import cats.effect._
+import cats.effect.unsafe.IORuntime
 import com.typesafe.config.ConfigFactory
 import org.http4s.HttpApp
-import org.http4s.implicits.http4sKleisliResponseSyntaxOptionT
+import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
-
-import scala.concurrent.ExecutionContext.global
+import scalikejdbc.{ConnectionPool, ConnectionPoolSettings}
 
 object HomeMonitorHttpServer extends IOApp {
 
@@ -34,30 +34,46 @@ object HomeMonitorHttpServer extends IOApp {
     HomeMonitorApplicationConfig(db, httpServer)
   }
 
-  private def httpApp[F[_] : Sync : Clock : Async : ContextShift]: HttpApp[F] = {
+  def initDb(config: DbConfig): String = {
+
+    val name = "application_db"
+
+    ConnectionPool.add(
+      name = name,
+      url = config.jdbcUrl,
+      user = config.username,
+      password = config.password,
+      settings = ConnectionPoolSettings(
+        driverName = config.driver
+      )
+    )
+
+    name
+  }
+
+  private def httpApp[F[_] : Async](dbName: String): HttpApp[F] = {
     Router(
       "/sensor" -> SensorDataEndpoints.endpoints[F](
         new DefaultSensorService(
-          new DbSensorDataRepository(
-            loadConfig().db
-          )
+          new DbSensorDataRepository(dbName)
         )
       ),
       "/status" -> StatusEndpoints.endpoints[F]()
     ).orNotFound
   }
 
-  def stream[F[_] : ConcurrentEffect : ContextShift : Timer]: fs2.Stream[F, ExitCode] = {
+  def stream[F[_] : Async](runtime: IORuntime): fs2.Stream[F, ExitCode] = {
     val config = loadConfig()
+    val dbName = initDb(config.db)
     for {
-      exitCode <- BlazeServerBuilder[F](global)
+      exitCode <- BlazeServerBuilder[F](runtime.compute)
         .bindHttp(config.httpServer.port, config.httpServer.host)
-        .withHttpApp(httpApp = httpApp[F])
+        .withHttpApp(httpApp[F](dbName))
         .serve
     } yield exitCode
   }
 
   override def run(args: List[String]): IO[ExitCode] = {
-    stream[IO].compile.drain.as(ExitCode.Success)
+    stream[IO](runtime).compile.drain.as(ExitCode.Success)
   }
 }

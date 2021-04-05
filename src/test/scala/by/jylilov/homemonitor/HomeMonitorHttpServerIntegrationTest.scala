@@ -1,44 +1,40 @@
 package by.jylilov.homemonitor
 
-import cats.effect.{Blocker, ContextShift, ExitCode, IO, Timer}
+import cats.effect.testing.scalatest.AsyncIOSpec
+import cats.effect.{ExitCode, IO}
+import cats.implicits.catsSyntaxApplicativeId
 import org.http4s.Status
-import org.http4s.client.{Client, JavaNetClientBuilder}
-import org.http4s.implicits.http4sLiteralsSyntax
-import org.scalatest.funspec.AnyFunSpec
+import org.http4s.client.blaze.BlazeClientBuilder
+import org.scalatest.funspec.AsyncFunSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 
-import scala.concurrent.ExecutionContext
+class HomeMonitorHttpServerIntegrationTest extends AsyncFunSpec with AsyncIOSpec with Matchers {
 
-class HomeMonitorHttpServerIntegrationTest extends AnyFunSpec with Matchers {
-
-  private val ec = ExecutionContext.global
-
-  implicit val cs: ContextShift[IO] = IO.contextShift(ec)
-  implicit val timer: Timer[IO] = IO.timer(ec)
-
-  val httpClient: Client[IO] = JavaNetClientBuilder[IO](Blocker.liftExecutionContext(ec)).create
+  private val httpClient = BlazeClientBuilder[IO](ioRuntime.compute).resource
 
   describe("App server") {
 
-    val server = HomeMonitorHttpServer.stream[IO].compile.drain.as(ExitCode.Success)
+    val server = HomeMonitorHttpServer.stream[IO](ioRuntime).compile.drain.as(ExitCode.Success)
 
     describe("when running") {
 
-      val startServer = server.runCancelable(_ => IO.unit)
-      val cancelServer = startServer.unsafeRunSync()
+      val ioServerFiber = server.start
 
-      describe("on status request") {
+      it("on status request") {
 
-        val response = httpClient.get(uri"http://localhost:9000/status") { response =>
-          IO.pure(response)
-        }.unsafeRunSync()
+        httpClient.use { httpClient =>
 
-        it("should return 200 OK status") {
-          response.status mustBe Status.Ok
+          for {
+            serverFiber <- ioServerFiber
+            assertion <-
+              httpClient
+                .get("http://localhost:9000/status")(_.pure[IO])
+                .asserting(_.status shouldBe Status.Ok)
+            _ <- serverFiber.cancel
+          } yield assertion
         }
       }
-
-      cancelServer.unsafeRunSync()
     }
   }
 }
