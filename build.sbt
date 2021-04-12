@@ -32,7 +32,7 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "log4cats-core",
   "org.typelevel" %% "log4cats-slf4j",
 ).map(_ % "2.0.1")
-libraryDependencies += "org.slf4j" % "slf4j-simple" % "1.7.30"
+libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
 
 // Configuration
 libraryDependencies += "com.typesafe" % "config" % "1.4.1"

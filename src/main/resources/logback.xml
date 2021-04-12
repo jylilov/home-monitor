@@ -1,0 +1,14 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %yellow(%-25.25thread) %highlight(%-5level) %cyan(%60logger{60}) %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.http4s.blaze" level="info"/>
+    <logger name="org.http4s.blaze.channel" level="error"/>
+    <logger name="org.http4s.client.blaze" level="info"/>
+    <root level="debug">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

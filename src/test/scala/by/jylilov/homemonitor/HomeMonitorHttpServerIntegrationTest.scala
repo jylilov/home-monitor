@@ -15,7 +15,7 @@ class HomeMonitorHttpServerIntegrationTest extends AsyncFunSpec with AsyncIOSpec
 
   describe("App server") {
 
-    val server = HomeMonitorHttpServer.stream[IO](ioRuntime).compile.drain.as(ExitCode.Success)
+    val server = HomeMonitorHttpServer.stream[IO](ioRuntime).as(ExitCode.Success)
 
     describe("when running") {
 
