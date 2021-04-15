@@ -40,3 +40,4 @@ libraryDependencies += "com.typesafe" % "config" % "1.4.1"
 // Test
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.5" % Test
 libraryDependencies += "org.typelevel" %% "cats-effect-testing-scalatest" % "1.0.0" % Test
+libraryDependencies += "org.testcontainers" % "testcontainers" % "1.15.2" % Test
