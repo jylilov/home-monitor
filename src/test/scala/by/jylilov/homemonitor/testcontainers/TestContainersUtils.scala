@@ -5,10 +5,10 @@ import org.testcontainers.containers.GenericContainer
 
 object TestContainersUtils {
 
-  def testContainerResource[F[_] : Sync](containerFun: GenericContainer[_]): Resource[F, GenericContainer[_]] =
+  def testContainerResource[F[_] : Sync](containerFun: () => GenericContainer[_]): Resource[F, GenericContainer[_]] =
     Resource.make(
       Sync[F].blocking {
-        val container = containerFun
+        val container = containerFun()
         container.start()
         container
       }

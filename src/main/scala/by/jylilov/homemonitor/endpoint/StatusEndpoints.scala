@@ -1,6 +1,6 @@
 package by.jylilov.homemonitor.endpoint
 
-import cats.effect.Sync
+import cats.effect._
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
 

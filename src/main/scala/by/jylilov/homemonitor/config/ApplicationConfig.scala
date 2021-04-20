@@ -1,6 +1,6 @@
 package by.jylilov.homemonitor.config
 
-case class HomeMonitorApplicationConfig(
+case class ApplicationConfig(
   db: DbConfig,
   httpServer: HttpServerConfig
 )

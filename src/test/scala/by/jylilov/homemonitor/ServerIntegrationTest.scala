@@ -9,10 +9,7 @@ import org.scalatest.Assertion
 import org.scalatest.funspec.AsyncFunSpec
 import org.scalatest.matchers.must.Matchers
 
-import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.FiniteDuration
-
-abstract class IntegrationSpec(
+abstract class ServerIntegrationTest(
   specDescription: String = "Server"
 ) extends AsyncFunSpec with AsyncIOSpec with Matchers {
 
