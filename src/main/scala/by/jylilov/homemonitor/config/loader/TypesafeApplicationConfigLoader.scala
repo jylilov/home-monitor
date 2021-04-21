@@ -14,10 +14,11 @@ class TypesafeApplicationConfigLoader[F[_] : Sync] extends ApplicationConfigLoad
   def parseConfig(config: Config): F[ApplicationConfig] =
     Sync[F].delay {
       val db = DbConfig(
+        config.getString("db.name"),
         config.getString("db.driver"),
         config.getString("db.jdbcUrl"),
         config.getString("db.username"),
-        config.getString("db.password")
+        config.getString("db.password"),
       )
       val httpServer = HttpServerConfig(
         config.getString("http.server.host"),
