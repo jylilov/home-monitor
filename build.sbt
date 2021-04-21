@@ -26,6 +26,7 @@ libraryDependencies ++= Seq(
 // JDBC connection
 libraryDependencies += "org.scalikejdbc" %% "scalikejdbc" % "3.5.0"
 libraryDependencies += "org.postgresql" % "postgresql" % "42.2.19"
+libraryDependencies += "org.flywaydb" % "flyway-core" % "7.8.1"
 
 // Logging
 libraryDependencies ++= Seq(

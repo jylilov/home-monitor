@@ -7,6 +7,7 @@ import by.jylilov.homemonitor.repository.DbSensorDataRepository
 import by.jylilov.homemonitor.service.DefaultSensorService
 import cats.effect._
 import cats.implicits._
+import org.flywaydb.core.Flyway
 import org.http4s.HttpApp
 import org.http4s.implicits._
 import org.http4s.server.Router
@@ -40,7 +41,13 @@ class HomeMonitorHttpServer[F[_] : Async](
             driverName = config.driver
           )
         )
+
         name
+      }
+      _ <- Sync[F].blocking {
+        val dataSource = ConnectionPool.dataSource(dbName)
+        val flyway = Flyway.configure().dataSource(dataSource).load()
+        flyway.migrate()
       }
     } yield dbName
   }

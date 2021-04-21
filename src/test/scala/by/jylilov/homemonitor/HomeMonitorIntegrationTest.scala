@@ -16,11 +16,20 @@ class HomeMonitorIntegrationTest extends ServerIntegrationTest("HomeMonitor serv
     _ <- testEndpoint.complete(s"http://${config.httpServer.host}:${config.httpServer.port}")
     result <- TestContainersUtils.testContainerResource[IO]({ () =>
       val container = new GenericContainer("timescale/timescaledb:2.1.1-pg13")
+      container.addExposedPort(5432)
+      container.addEnv("POSTGRES_DB", "home_monitor")
       container.addEnv("POSTGRES_USER", config.db.username)
       container.addEnv("POSTGRES_PASSWORD", config.db.password)
       container
-    }).use { _ =>
-      new HomeMonitorHttpServer[IO](() => IO(config), ioRuntime.compute).serve
+    }).use { container =>
+
+      val newConfig = config.copy(
+        db = config.db.copy(
+          jdbcUrl = s"jdbc:postgresql://localhost:${container.getFirstMappedPort}/home_monitor"
+        )
+      )
+
+      new HomeMonitorHttpServer[IO](() => IO(newConfig), ioRuntime.compute).serve
     }
   } yield result
 }
