@@ -37,5 +37,5 @@ class TypesafeApplicationConfigLoader[F[_] : Sync] extends ApplicationConfigLoad
 }
 
 object TypesafeApplicationConfigLoader {
-  def apply[F[_] : Sync]: TypesafeApplicationConfigLoader[F] = new TypesafeApplicationConfigLoader()
+  def apply[F[_] : Sync]: ApplicationConfigLoader[F] = new TypesafeApplicationConfigLoader()
 }

@@ -22,7 +22,6 @@ class HomeMonitorHttpServer[F[_] : Async](
   dbInitializer: DbInitializer[F],
   computeExecutionContext: ExecutionContext
 ) {
-
   private implicit def logger: Logger[F] = Slf4jLogger.getLogger[F]
 
   private def httpApp(config: ApplicationConfig): HttpApp[F] = {
