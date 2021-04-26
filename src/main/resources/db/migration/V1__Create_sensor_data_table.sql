@@ -1,6 +1,6 @@
-CREATE EXTENSION IF NOT EXISTS timescaledb VERSION '1.7.4';
+create extension if not exists timescaledb version '1.7.4';
 
-create table sensor_data
+create table if not exists sensor_data
 (
     time        timestamp        not null,
     temperature double precision null,
