@@ -10,7 +10,3 @@ class StatusEndpoints[F[_] : Sync] extends Http4sDsl[F] {
       case GET -> Root => Ok()
     }
 }
-
-object StatusEndpoints {
-  def endpoints[F[_] : Sync](): HttpRoutes[F] = new StatusEndpoints[F].endpoints()
-}

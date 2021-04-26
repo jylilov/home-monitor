@@ -1,16 +1,16 @@
 package by.jylilov.homemonitor
 
-import by.jylilov.homemonitor.config.loader.TypesafeApplicationConfigLoader
-import by.jylilov.homemonitor.repository.{CombinedDbInitializer, ScalikeConnectionPoolDbInitializer, ScalikeFlywayDbInitializer}
-import cats.effect.{ExitCode, IO, IOApp}
+import by.jylilov.homemonitor.config.initializer._
+import by.jylilov.homemonitor.config.loader.TypesafeAppConfigLoader
+import cats.effect._
 
 object HomeMonitorApplication extends IOApp {
 
   override def run(args: List[String]): IO[ExitCode] = new HomeMonitorHttpServer(
-    TypesafeApplicationConfigLoader[IO],
-    CombinedDbInitializer(
-      ScalikeConnectionPoolDbInitializer[IO],
-      ScalikeFlywayDbInitializer[IO]
+    TypesafeAppConfigLoader[IO],
+    CombinedAppInitializer(
+      ScalikeConnectionPoolAppInitializer[IO],
+      ScalikeFlywayAppInitializer[IO]
     ),
     runtime.compute
   ).serve

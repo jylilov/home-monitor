@@ -27,8 +27,3 @@ class SensorDataEndpoints[F[_] : Async](
         } yield response
     }
 }
-
-object SensorDataEndpoints {
-  def endpoints[F[_] : Async](dataCollectorService: SensorService[F]): HttpRoutes[F] =
-    new SensorDataEndpoints[F](dataCollectorService).endpoints()
-}

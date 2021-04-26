@@ -1,6 +1,6 @@
-package by.jylilov.homemonitor.repository
+package by.jylilov.homemonitor.config.initializer
 
-import by.jylilov.homemonitor.config.DbConfig
+import by.jylilov.homemonitor.config.AppConfig
 import cats.effect._
 import cats.implicits._
 import org.flywaydb.core.Flyway
@@ -8,11 +8,12 @@ import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import scalikejdbc.ConnectionPool
 
-class ScalikeFlywayDbInitializer[F[_] : Sync] extends DbInitializer[F] {
+class ScalikeFlywayAppInitializer[F[_] : Sync] extends AppInitializer[F] {
 
   private implicit val logger: Logger[F] = Slf4jLogger.getLogger
 
-  override def init(dbConfig: DbConfig): F[Unit] =
+  override def init(config: AppConfig): F[Unit] = {
+    val dbConfig = config.db
     for {
       _ <- Logger[F].info("Apply Flyway migration")
       _ <- Sync[F].blocking {
@@ -21,8 +22,9 @@ class ScalikeFlywayDbInitializer[F[_] : Sync] extends DbInitializer[F] {
         flyway.migrate()
       }
     } yield ()
+  }
 }
 
-object ScalikeFlywayDbInitializer {
-  def apply[F[_] : Sync]: DbInitializer[F] = new ScalikeFlywayDbInitializer()
+object ScalikeFlywayAppInitializer {
+  def apply[F[_] : Sync]: AppInitializer[F] = new ScalikeFlywayAppInitializer()
 }

@@ -1,17 +1,18 @@
-package by.jylilov.homemonitor.repository
+package by.jylilov.homemonitor.config.initializer
 
-import by.jylilov.homemonitor.config.DbConfig
+import by.jylilov.homemonitor.config.AppConfig
 import cats.effect._
 import cats.implicits._
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import scalikejdbc.{ConnectionPool, ConnectionPoolSettings}
 
-class ScalikeConnectionPoolDbInitializer[F[_] : Sync] extends DbInitializer[F] {
+class ScalikeConnectionPoolAppInitializer[F[_] : Sync] extends AppInitializer[F] {
 
   private implicit val logger: Logger[F] = Slf4jLogger.getLogger
 
-  override def init(dbConfig: DbConfig): F[Unit] =
+  override def init(config: AppConfig): F[Unit] = {
+    val dbConfig = config.db
     for {
       _ <- Logger[F].info("Initializing DB connection")
       _ <- Sync[F].blocking {
@@ -26,8 +27,9 @@ class ScalikeConnectionPoolDbInitializer[F[_] : Sync] extends DbInitializer[F] {
         )
       }
     } yield ()
+  }
 }
 
-object ScalikeConnectionPoolDbInitializer {
-  def apply[F[_] : Sync]: DbInitializer[F] = new ScalikeConnectionPoolDbInitializer()
+object ScalikeConnectionPoolAppInitializer {
+  def apply[F[_] : Sync]: AppInitializer[F] = new ScalikeConnectionPoolAppInitializer()
 }
