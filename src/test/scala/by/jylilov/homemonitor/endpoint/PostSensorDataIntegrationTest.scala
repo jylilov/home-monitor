@@ -6,20 +6,17 @@ import org.http4s._
 
 class PostSensorDataIntegrationTest extends HomeMonitorIntegrationTest {
 
-  describe("on valid POST sensor data request") {
+  test("should save sensor data on valid POST sensor data request") { implicit ctx =>
 
-    it("should return valid response") { implicit ctx =>
+    val request = postRequest(
+      "/sensor",
+      Map(
+        "temperature" -> 0.1,
+        "humidity" -> 0.1
+      ).asJson
+    )
+    val response = executeRequest(request)
 
-      val request = postRequest(
-        "/sensor",
-        Map(
-          "temperature" -> 0.1,
-          "humidity" -> 0.1
-        ).asJson
-      )
-      val response = executeRequest(request)
-
-      response.asserting(_.status shouldBe Status.Ok)
-    }
+    response.asserting(_.status shouldBe Status.Ok)
   }
 }

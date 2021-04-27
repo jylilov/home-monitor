@@ -5,14 +5,11 @@ import org.http4s.Status
 
 class StatusEndpointIntegrationTest extends HomeMonitorIntegrationTest {
 
-  describe("on status request") {
+  test("should return 200 Ok response on status request") { implicit ctx =>
 
-    it("should return 200 Ok response") { implicit ctx =>
+    val request = getRequest("/status")
+    val response = executeRequest(request)
 
-      val request = getRequest("/status")
-      val response = executeRequest(request)
-
-      response.asserting(_.status shouldBe Status.Ok)
-    }
+    response.asserting(_.status shouldBe Status.Ok)
   }
 }

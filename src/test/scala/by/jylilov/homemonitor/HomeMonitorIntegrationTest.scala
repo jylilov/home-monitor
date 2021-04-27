@@ -9,12 +9,12 @@ import cats.effect._
 import cats.effect.testing.scalatest.{AsyncIOSpec, CatsResourceIO}
 import cats.implicits._
 import org.http4s.client.blaze.BlazeClientBuilder
-import org.scalatest.funspec.FixtureAsyncFunSpec
+import org.scalatest.funsuite.FixtureAsyncFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
-class HomeMonitorIntegrationTest extends FixtureAsyncFunSpec
+class HomeMonitorIntegrationTest extends FixtureAsyncFunSuite
   with AsyncIOSpec
   with Matchers
   with CatsResourceIO[TestContext[IO]]
