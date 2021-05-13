@@ -14,6 +14,8 @@ import org.scalatest.matchers.should.Matchers
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
+import scala.util.Random
+
 class HomeMonitorIntegrationTest extends FixtureAsyncFunSuite
   with AsyncIOSpec
   with Matchers
@@ -48,10 +50,18 @@ class HomeMonitorIntegrationTest extends FixtureAsyncFunSuite
     )
   }
 
+  private def updateConfigServerPort(config: AppConfig): AppConfig =
+    config.copy(
+      httpServer = config.httpServer.copy(
+        port = Random.nextInt(16383) + 49152
+      )
+    )
+
   override val resource: Resource[IO, TestContext[IO]] = Resource.make(
     for {
       initialized <- Deferred[IO, Unit]
-      config <- configLoader.load()
+      loadedConfig <- configLoader.load()
+      config = updateConfigServerPort(loadedConfig)
       testEndpoint = s"http://${config.httpServer.host}:${config.httpServer.port}"
       serverFiber <- testContainer(config).use { container =>
         val finalConfig = updateConfig(config, container)

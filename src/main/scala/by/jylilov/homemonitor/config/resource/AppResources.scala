@@ -3,12 +3,13 @@ package by.jylilov.homemonitor.config.resource
 import by.jylilov.homemonitor.config.AppConfig
 import by.jylilov.homemonitor.domain.DbInfo
 import by.jylilov.homemonitor.endpoint.{SensorDataEndpoints, StatusEndpoints}
+import by.jylilov.homemonitor.error.HomeMonitorErrorHandler
 import by.jylilov.homemonitor.repository.{DbSensorDataRepository, SensorDataRepository}
 import by.jylilov.homemonitor.service.{DefaultSensorService, SensorService}
 import cats.effect._
 import org.http4s._
 import org.http4s.implicits._
-import org.http4s.server.Router
+import org.http4s.server.{Router, ServiceErrorHandler}
 
 class AppResources[F[_] : Async](config: AppConfig) {
 
@@ -25,4 +26,6 @@ class AppResources[F[_] : Async](config: AppConfig) {
     "/sensor" -> sensorEndpoints,
     "/status" -> statusEndpoints
   ).orNotFound
+
+  val errorHandler: ServiceErrorHandler[F] = new HomeMonitorErrorHandler()
 }

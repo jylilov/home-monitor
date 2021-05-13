@@ -27,6 +27,7 @@ class HomeMonitorHttpServer[F[_] : Async](
         .bindHttp(config.httpServer.port, config.httpServer.host)
         .withBanner(null)
         .withHttpApp(appResources.httpApp)
+        .withServiceErrorHandler(appResources.errorHandler)
         .serve
         .compile
         .drain
